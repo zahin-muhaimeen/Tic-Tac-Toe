@@ -1,17 +1,17 @@
 # Tic-Tac-Toe
 
-**Version 1.1.0**
+**Version 1.2.0**
 
-A README of a Tic Tac Toe python project.
+Tic Tac Toe written in python.
 
 ---
 
 ## What's New
 
-1. New checking algorithm creating a much smoother
-   and faster playing experience.
-2. Added feature which will allow you to replay
-   the game without launching a new window.
+1. Reformated the `tictactoe.py` so it is easier
+   on the eyes, increasing readability
+2. Removed magic numbers by replacing them with
+   the appropriate constant value.
    
 ---
 
