@@ -1,31 +1,54 @@
 from random import randint
 
+# Game Constans
 BOARD_LENGTH = 3
 WINNING_LENGTH = 3
 
+# Board
 board = [
     ["-", "-", "-"],
     ["-", "-", "-"],
     ["-", "-", "-"],
 ]
 
+# Tracking
 turns = 0
 x_turn = True
 
 
-def printing_board():
+# Print Board
+def printing_board() -> None:
+    """
+    Prints the rows in the board
+    """
     for row in board:
         print(row)
 
 
-def get_int(prompt):
+# Input
+def get_int(prompt: str) -> int:
+    """
+    Gets the required input from the user
+    
+    :param prompt: A string to tell the user what to input.
+    :return: The `int` the user entered.
+    """
     user_in = input(prompt)
     while not user_in.isnumeric():
         user_in = input(prompt)
     return int(user_in)
 
 
-def choosing(x, player_y):
+# Player Position
+def choosing(x: int, player_y: int) -> None:
+    """
+    Uses the x and y input from the user, and places
+    it on the board
+
+    :param x: The `int` position of x on the board.
+    :param player_y: The player side `int` on a cartesian
+        plain. This is then converted to match the board.
+    """
     global turns, x_turn
     y = WINNING_LENGTH - 1 - player_y
 
@@ -46,11 +69,22 @@ def choosing(x, player_y):
         print("Position, x: {}, y: {}, is not in board".format(x, player_y))
 
 
-def checking(moved):
+# Checks if Won
+def checking(moved: str) -> str or None:
+    """
+    Checks if the present move caused a winning move
+    or caused a draw.
+
+    :param moved: Whoever chose the present move
+    :return: If the move caused a win, it returns
+        a `str` telling the player who won. If its a
+        draw it will return the `str` "Draw!".
+        Otherwise, nothing will be returned.
+    """
     if turns >= 5:
 
         # Check List
-        check_list = [None, None, None]
+        check_list = [None] * BOARD_LENGTH
 
         # Row
         for row in board:
@@ -86,7 +120,11 @@ def checking(moved):
             return "Draw!"
 
 
-def main():
+# The Game
+def main() -> None:
+    """
+    The game itself
+    """
     global turns, x_turn
 
     play = True
@@ -121,7 +159,7 @@ def main():
             x_turn = True
 
             for row in board:
-                for index, pos in row:
+                for index, pos in enumerate(row):
                     row[index] = "-"
 
 
