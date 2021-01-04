@@ -1,6 +1,4 @@
-from random import randint
-
-# Game Constans
+# Game Constants
 BOARD_LENGTH = 3
 WINNING_LENGTH = 3
 
@@ -12,7 +10,7 @@ board = [
 ]
 
 # Tracking
-turns = 0
+turn_count = 0
 x_turn = True
 
 
@@ -39,8 +37,22 @@ def get_int(prompt: str) -> int:
     return int(user_in)
 
 
+# Is it on the board?
+def on_board(x: int, y: int) -> bool:
+    """
+    Checks if position x and y are located on the board
+
+    :param x: The `int` for position x
+    :param y: The `int` for position y
+    :return: Whether or not x and y are available on the board
+    """
+    if x in range(BOARD_LENGTH) and y in range(BOARD_LENGTH):
+        return True
+    return False
+
+
 # Player Position
-def choosing(x: int, player_y: int) -> None:
+def choosing(x: int, player_y: int) -> tuple[int, int] or None:
     """
     Uses the x and y input from the user, and places
     it on the board
@@ -49,19 +61,19 @@ def choosing(x: int, player_y: int) -> None:
     :param player_y: The player side `int` on a cartesian
         plain. This is then converted to match the board.
     """
-    global turns, x_turn
+    global turn_count, x_turn
     y = WINNING_LENGTH - 1 - player_y
 
-    if x in range(BOARD_LENGTH) and y in range(BOARD_LENGTH):
+    if on_board(x, y):
         if board[y][x] == "-":
             if x_turn:
                 board[y][x] = "X"
                 x_turn = False
-                turns += 1
             else:
                 board[y][x] = "O"
                 x_turn = True
-                turns += 1
+            turn_count += 1
+            return x, y
         else:
             print("Position, x: {}, y: {}, is occupied by {}"
                   .format(x, player_y, board[y][x]))
@@ -69,55 +81,58 @@ def choosing(x: int, player_y: int) -> None:
         print("Position, x: {}, y: {}, is not in board".format(x, player_y))
 
 
-# Checks if Won
-def checking(moved: str) -> str or None:
+# Win or Loss?
+def checking(x: int, y: int, letter: int) -> str or None:
     """
-    Checks if the present move caused a winning move
-    or caused a draw.
+    Checks if the previous move was a win or a loss for player `X`
 
-    :param moved: Whoever chose the present move
-    :return: If the move caused a win, it returns
-        a `str` telling the player who won. If its a
-        draw it will return the `str` "Draw!".
+    :param x: The `int` for position x
+    :param y: The `int` for position y
+    :param letter: The move played by
+    :return: If `letter` has won, it returns a `str` stating that.
+        If it was a draw, the `str` "Draw!" will be returned.
         Otherwise, nothing will be returned.
     """
-    if turns >= 5:
+    # Check Lists
+    cl_row = [None] * (WINNING_LENGTH * 2 - 1) 
+    cl_col = [None] * (WINNING_LENGTH * 2 - 1)  
+    cl_pdia = [None] * (WINNING_LENGTH * 2 - 1) 
+    cl_ndia = [None] * (WINNING_LENGTH * 2 - 1) 
 
-        # Check List
-        check_list = [None] * BOARD_LENGTH
+    # Starting Positions for Extracting Positions
+    starting_x = x - (WINNING_LENGTH - 1)
+    starting_y = y + (WINNING_LENGTH - 1)
 
+    # Negative Diagonal Starting Positions
+    n_start_x = x + (WINNING_LENGTH - 1)
+    n_start_y = y + (WINNING_LENGTH - 1)
+
+    # Extracting Positions to the Check Lists
+    for change in range(WINNING_LENGTH * 2 - 1):
         # Row
-        for row in board:
-            if row.count(moved) == WINNING_LENGTH:
-                return "{} Won!".format(moved)
-
+        if on_board(starting_x + change, y):
+            cl_row[change] = board[y][starting_x + change]
         # Column
-        for index in range(BOARD_LENGTH):
-            for pos, row in enumerate(board):
-                check_list[pos] = row[index]
-
-            if check_list.count(moved) == WINNING_LENGTH:
-                return "{} Won!".format(moved)
-
-        # Negative Diagonal
-        for index in range(BOARD_LENGTH):
-            for row in board:
-                check_list[index] = board[index][index]
-
-        if check_list.count(moved) == WINNING_LENGTH:
-            return "{} Won!".format(moved)
-
+        if on_board(x, starting_y - change):
+            cl_col[change] = board[starting_y - change][x]
         # Positive Diagonal
-        for index in range(BOARD_LENGTH):
-            for row in board:
-                check_list[index] = board[BOARD_LENGTH - 1 - index][index]
+        if on_board(starting_x + change, starting_y - change):
+            cl_pdia[change] = board[starting_y - change][starting_x + change]
+        # Negative Diagonal
+        if on_board(n_start_x - change, n_start_y - change):
+            cl_ndia[change] = board[n_start_y - change][n_start_x - change]
 
-        if check_list.count(moved) == WINNING_LENGTH:
-            return "{} Won!".format(moved)
-
-        # Draw
-        if turns == BOARD_LENGTH ** 2:
-            return "Draw!"
+    # Checking If There was any Winning Statements in the Check Lists
+    if cl_row.count(letter) >= WINNING_LENGTH:
+        return f"{letter} Won!"
+    if cl_col.count(letter) >= WINNING_LENGTH:
+        return f"{letter} Won!"
+    if cl_pdia.count(letter) >= WINNING_LENGTH:
+        return f"{letter} Won!"
+    if cl_ndia.count(letter) >= WINNING_LENGTH:
+        return f"{letter} Won!"
+    if turn_count == BOARD_LENGTH ** 2:
+        return "Draw!"
 
 
 # The Game
@@ -125,7 +140,7 @@ def main() -> None:
     """
     The game itself
     """
-    global turns, x_turn
+    global turn_count, x_turn
 
     play = True
 
@@ -133,19 +148,25 @@ def main() -> None:
 
         while True:
             printing_board()
-
-            choosing(get_int(": "), get_int(": "))
-            if checking("X") is not None:
+            
+            coords = choosing(get_int(": "), get_int(": "))
+            while coords is None:
+                coords = choosing(get_int(": "), get_int(": "))
+            outcome = checking(coords[0], coords[1], "X") 
+            if outcome is not None:
                 printing_board()
-                print(checking("X"))
+                print(outcome)
                 break
 
             printing_board()
 
-            choosing(get_int(": "), get_int(": "))
-            if checking("O") is not None:
+            coords = choosing(get_int(": "), get_int(": "))
+            while coords is None:
+                coords = choosing(get_int(": "), get_int(": "))
+            outcome = checking(coords[0], coords[1], "O") 
+            if outcome is not None:
                 printing_board()
-                print(checking("O"))
+                print(outcome)
                 break
 
         again = input("Would you like to play again (y/n): ")
@@ -155,7 +176,7 @@ def main() -> None:
         if again.casefold() == "n":
             play = False
         else:
-            turns = 0
+            turn_count = 0
             x_turn = True
 
             for row in board:

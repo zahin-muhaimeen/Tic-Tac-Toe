@@ -1,6 +1,6 @@
 # Tic-Tac-Toe
 
-**Version 1.4.0**
+**Version 1.5.0**
 
 Tic Tac Toe written in python.
 
@@ -8,10 +8,11 @@ Tic Tac Toe written in python.
 
 ## What's New
 
-1. Documented functions and added annotations
-2. Fixed bug where the board wouldn't reset
-   after saying that you would like to play again
-   
+1. Recreated the `checking` function as it was way to messy
+   and extracted unnecesary positions from the board.
+   Now it only extracts positions arround the previous move
+   to avoid extracting everything in the board
+
 ---
 
 ## License & Copyright
