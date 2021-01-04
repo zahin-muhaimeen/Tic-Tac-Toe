@@ -1,17 +1,17 @@
 # Tic-Tac-Toe
 
-**Version 1.5.0**
+**Version 2.0**
 
 Tic Tac Toe written in python.
+
+If you still want to use the command line version,
+any version that is 1.5 and below is the place to go
 
 ---
 
 ## What's New
 
-1. Recreated the `checking` function as it was way to messy
-   and extracted unnecesary positions from the board.
-   Now it only extracts positions arround the previous move
-   to avoid extracting everything in the board
+1. Remade the entire game, but with a GUI made with Tkinter
 
 ---
 

@@ -1,40 +1,15 @@
-# Game Constants
+from tkinter import *
+from tkinter import messagebox
+
+# Intializing Tkinter
+root = Tk()
+root.title("Tic-Tac-Toe")
+
+# Game Constants, Things to Keep Track Of
 BOARD_LENGTH = 3
 WINNING_LENGTH = 3
-
-# Board
-board = [
-    ["-", "-", "-"],
-    ["-", "-", "-"],
-    ["-", "-", "-"],
-]
-
-# Tracking
 turn_count = 0
 x_turn = True
-
-
-# Print Board
-def printing_board() -> None:
-    """
-    Prints the rows in the board
-    """
-    for row in board:
-        print(row)
-
-
-# Input
-def get_int(prompt: str) -> int:
-    """
-    Gets the required input from the user
-    
-    :param prompt: A string to tell the user what to input.
-    :return: The `int` the user entered.
-    """
-    user_in = input(prompt)
-    while not user_in.isnumeric():
-        user_in = input(prompt)
-    return int(user_in)
 
 
 # Is it on the board?
@@ -51,38 +26,8 @@ def on_board(x: int, y: int) -> bool:
     return False
 
 
-# Player Position
-def choosing(x: int, player_y: int) -> tuple[int, int] or None:
-    """
-    Uses the x and y input from the user, and places
-    it on the board
-
-    :param x: The `int` position of x on the board.
-    :param player_y: The player side `int` on a cartesian
-        plain. This is then converted to match the board.
-    """
-    global turn_count, x_turn
-    y = WINNING_LENGTH - 1 - player_y
-
-    if on_board(x, y):
-        if board[y][x] == "-":
-            if x_turn:
-                board[y][x] = "X"
-                x_turn = False
-            else:
-                board[y][x] = "O"
-                x_turn = True
-            turn_count += 1
-            return x, y
-        else:
-            print("Position, x: {}, y: {}, is occupied by {}"
-                  .format(x, player_y, board[y][x]))
-    else:
-        print("Position, x: {}, y: {}, is not in board".format(x, player_y))
-
-
 # Win or Loss?
-def checking(x: int, y: int, letter: int) -> str or None:
+def checking(x: int, y: int, letter: str) -> str or None:
     """
     Checks if the previous move was a win or a loss for player `X`
 
@@ -94,10 +39,10 @@ def checking(x: int, y: int, letter: int) -> str or None:
         Otherwise, nothing will be returned.
     """
     # Check Lists
-    cl_row = [None] * (WINNING_LENGTH * 2 - 1) 
-    cl_col = [None] * (WINNING_LENGTH * 2 - 1)  
-    cl_pdia = [None] * (WINNING_LENGTH * 2 - 1) 
-    cl_ndia = [None] * (WINNING_LENGTH * 2 - 1) 
+    cl_row = [None] * (WINNING_LENGTH * 2 - 1)
+    cl_col = [None] * (WINNING_LENGTH * 2 - 1)
+    cl_pdia = [None] * (WINNING_LENGTH * 2 - 1)
+    cl_ndia = [None] * (WINNING_LENGTH * 2 - 1)
 
     # Starting Positions for Extracting Positions
     starting_x = x - (WINNING_LENGTH - 1)
@@ -111,16 +56,16 @@ def checking(x: int, y: int, letter: int) -> str or None:
     for change in range(WINNING_LENGTH * 2 - 1):
         # Row
         if on_board(starting_x + change, y):
-            cl_row[change] = board[y][starting_x + change]
+            cl_row[change] = board[y][starting_x + change]["text"]
         # Column
         if on_board(x, starting_y - change):
-            cl_col[change] = board[starting_y - change][x]
+            cl_col[change] = board[starting_y - change][x]["text"]
         # Positive Diagonal
         if on_board(starting_x + change, starting_y - change):
-            cl_pdia[change] = board[starting_y - change][starting_x + change]
+            cl_pdia[change] = board[starting_y - change][starting_x + change]["text"]
         # Negative Diagonal
         if on_board(n_start_x - change, n_start_y - change):
-            cl_ndia[change] = board[n_start_y - change][n_start_x - change]
+            cl_ndia[change] = board[n_start_y - change][n_start_x - change]["text"]
 
     # Checking If There was any Winning Statements in the Check Lists
     if cl_row.count(letter) >= WINNING_LENGTH:
@@ -135,54 +80,85 @@ def checking(x: int, y: int, letter: int) -> str or None:
         return "Draw!"
 
 
-# The Game
-def main() -> None:
+# Reset
+def game_reset():
     """
-    The game itself
+    Resets the entire game
     """
-    global turn_count, x_turn
+    global x_turn, turn_count
 
-    play = True
+    x_turn = True
+    turn_count = 0
+    for row in board:
+        for col in row:
+            col["text"] = " "
 
-    while play:
 
-        while True:
-            printing_board()
-            
-            coords = choosing(get_int(": "), get_int(": "))
-            while coords is None:
-                coords = choosing(get_int(": "), get_int(": "))
-            outcome = checking(coords[0], coords[1], "X") 
+# Button Functionality
+def b_click(button: Button) -> None:
+    """
+    Allows Tic Tac Toe button functionaly when it is pressed
+
+    :param button: The button pressed
+    """
+    global x_turn, turn_count
+
+    coordinates = button.grid_info()
+    x = int(coordinates["column"])
+    y = int(coordinates["row"])
+
+    if button["text"] == " ":
+        if x_turn:
+            button["text"] = "X"
+            x_turn = False
+            turn_count += 1
+            outcome = checking(x, y, "X")
             if outcome is not None:
-                printing_board()
-                print(outcome)
-                break
-
-            printing_board()
-
-            coords = choosing(get_int(": "), get_int(": "))
-            while coords is None:
-                coords = choosing(get_int(": "), get_int(": "))
-            outcome = checking(coords[0], coords[1], "O") 
-            if outcome is not None:
-                printing_board()
-                print(outcome)
-                break
-
-        again = input("Would you like to play again (y/n): ")
-
-        while again not in "y or n":
-            again = input("Please enter `y` (`yes`) or `n` (`no`): ")
-        if again.casefold() == "n":
-            play = False
+                messagebox.showinfo("Tic Tac Toe", outcome)
+                game_reset()
         else:
-            turn_count = 0
+            button["text"] = "O"
             x_turn = True
+            turn_count += 1
+            outcome = checking(x, y, "O")
+            if outcome is not None:
+                messagebox.showinfo("Tic Tac Toe", outcome)
+                game_reset()
+    else:
+        messagebox.showerror("Tic Tac Toe", "Position Ouccupied by Player {}"
+                             .format(button["text"]))
 
-            for row in board:
-                for index, pos in enumerate(row):
-                    row[index] = "-"
 
+# Buttons
+b1 = Button(root, text=" ", font=("Helvetica", 25), height=4, width=8, bg="SystemButtonFace",
+            command=lambda: b_click(b1))
+b2 = Button(root, text=" ", font=("Helvetica", 25), height=4, width=8, bg="SystemButtonFace",
+            command=lambda: b_click(b2))
+b3 = Button(root, text=" ", font=("Helvetica", 25), height=4, width=8, bg="SystemButtonFace",
+            command=lambda: b_click(b3))
 
-if __name__ == '__main__':
-    main()
+b4 = Button(root, text=" ", font=("Helvetica", 25), height=4, width=8, bg="SystemButtonFace",
+            command=lambda: b_click(b4))
+b5 = Button(root, text=" ", font=("Helvetica", 25), height=4, width=8, bg="SystemButtonFace",
+            command=lambda: b_click(b5))
+b6 = Button(root, text=" ", font=("Helvetica", 25), height=4, width=8, bg="SystemButtonFace",
+            command=lambda: b_click(b6))
+
+b7 = Button(root, text=" ", font=("Helvetica", 25), height=4, width=8, bg="SystemButtonFace",
+            command=lambda: b_click(b7))
+b8 = Button(root, text=" ", font=("Helvetica", 25), height=4, width=8, bg="SystemButtonFace",
+            command=lambda: b_click(b8))
+b9 = Button(root, text=" ", font=("Helvetica", 25), height=4, width=8, bg="SystemButtonFace",
+            command=lambda: b_click(b9))
+
+# Board
+board = [[b1, b2, b3],
+         [b4, b5, b6],
+         [b7, b8, b9],
+         ]
+
+for y, row in enumerate(board):
+    for x, col in enumerate(row):
+        col.grid(row=y, column=x)
+
+root.mainloop()
