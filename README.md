@@ -1,6 +1,6 @@
 # Tic-Tac-Toe
 
-**Version 2.0**
+**Version 2.1**
 
 Tic Tac Toe written in python.
 
@@ -11,7 +11,8 @@ any version that is 1.5 and below is the place to go
 
 ## What's New
 
-1. Remade the entire game, but with a GUI made with Tkinter
+1. Added a scuff ai to the game. All it can do now is try to prevent
+   me from winning. It wont try to win itself at the moment.
 
 ---
 
