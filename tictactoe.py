@@ -1,5 +1,7 @@
 from tkinter import *
 from tkinter import messagebox
+from random import randint
+import sys
 
 # Intializing Tkinter
 root = Tk()
@@ -9,7 +11,6 @@ root.title("Tic-Tac-Toe")
 BOARD_LENGTH = 3
 WINNING_LENGTH = 3
 turn_count = 0
-x_turn = True
 
 
 # Is it on the board?
@@ -85,13 +86,70 @@ def game_reset():
     """
     Resets the entire game
     """
-    global x_turn, turn_count
+    global turn_count
 
-    x_turn = True
     turn_count = 0
     for row in board:
         for col in row:
             col["text"] = " "
+
+
+# Aritficial Intelligence
+def ai(x: int, y: int) -> tuple[int, int]:
+    """
+    Finds the best possible position to play
+
+    :param x: Player move x
+    :param y: Player move y
+    :return: The best possible position in x and y coordinates
+    """
+    cl_row = [None] * WINNING_LENGTH
+    cl_col = [None] * WINNING_LENGTH
+    cl_pdia = [None] * WINNING_LENGTH
+    cl_ndia = [None] * WINNING_LENGTH
+
+    if turn_count == 1:
+        places = ((0, 2), (2, 2), (2, 0), (0, 0))
+        position = randint(0, 3)
+        while board[places[position][1]][places[position][0]]["text"] == "X":
+            position = randint(0, 3)
+        else:
+            return places[position]
+
+    for index, button in enumerate(board[y]):
+        cl_row[index] = board[y][index]["text"]
+
+    if cl_row.count("X") == WINNING_LENGTH - 1:
+        for this_x, col in enumerate(board[y]):
+            if col["text"] == " ":
+                return this_x, y
+
+    for this_y, row in enumerate(board):
+        cl_col[this_y] = row[x]["text"]
+
+    if cl_col.count("X") == WINNING_LENGTH - 1:
+        for this_y, row in enumerate(board):
+            if row[x]["text"] == " ":
+                return x, this_y
+
+    for index in range(BOARD_LENGTH):
+        cl_ndia[index] = board[index][index]["text"]
+        cl_pdia[index] = board[BOARD_LENGTH - 1 - index][index]["text"]
+
+    if cl_ndia.count("X") == WINNING_LENGTH - 1:
+        for index in range(BOARD_LENGTH):
+            if board[index][index]["text"] == " ":
+                return index, index
+
+    if cl_pdia.count("X") == WINNING_LENGTH - 1:
+        for index in range(BOARD_LENGTH):
+            if board[BOARD_LENGTH - 1 - index][index]["text"] == " ":
+                return index, BOARD_LENGTH - 1 - index
+
+    for this_y, row in enumerate(board):
+        for this_x, col in enumerate(row):
+            if col["text"] == " ":
+                return this_x, this_y
 
 
 # Button Functionality
@@ -101,26 +159,24 @@ def b_click(button: Button) -> None:
 
     :param button: The button pressed
     """
-    global x_turn, turn_count
+    global turn_count
 
     coordinates = button.grid_info()
     x = int(coordinates["column"])
     y = int(coordinates["row"])
 
     if button["text"] == " ":
-        if x_turn:
-            button["text"] = "X"
-            x_turn = False
-            turn_count += 1
-            outcome = checking(x, y, "X")
-            if outcome is not None:
-                messagebox.showinfo("Tic Tac Toe", outcome)
-                game_reset()
+        button["text"] = "X"
+        turn_count += 1
+        outcome = checking(x, y, "X")
+        if outcome is not None:
+            messagebox.showinfo("Tic Tac Toe", outcome)
+            game_reset()
         else:
-            button["text"] = "O"
-            x_turn = True
+            ai_coord = ai(x, y)
             turn_count += 1
-            outcome = checking(x, y, "O")
+            board[ai_coord[1]][ai_coord[0]]["text"] = "O"
+            outcome = checking(ai_coord[0], ai_coord[1], "O")
             if outcome is not None:
                 messagebox.showinfo("Tic Tac Toe", outcome)
                 game_reset()
