@@ -1,9 +1,8 @@
 from tkinter import *
 from tkinter import messagebox
 from random import randint
-import sys
 
-# Intializing Tkinter
+# Initializing Tkinter
 root = Tk()
 root.title("Tic-Tac-Toe")
 
@@ -11,6 +10,7 @@ root.title("Tic-Tac-Toe")
 BOARD_LENGTH = 3
 WINNING_LENGTH = 3
 turn_count = 0
+ai_previous = None
 
 
 # Is it on the board?
@@ -86,55 +86,108 @@ def game_reset():
     """
     Resets the entire game
     """
-    global turn_count
+    global turn_count, ai_previous
 
     turn_count = 0
+    ai_previous = None
     for row in board:
         for col in row:
             col["text"] = " "
 
 
-# Aritficial Intelligence
-def ai(x: int, y: int) -> tuple[int, int]:
-    """
-    Finds the best possible position to play
+# Artificial Offense
+def ai_offense(x: int, y: int) -> tuple[int, int] or None:
+    """Finds the move that causes the ai to win"""
+    cl_row = [None] * (WINNING_LENGTH * 2 - 1)
+    cl_col = [None] * (WINNING_LENGTH * 2 - 1)
+    cl_pdia = [None] * (WINNING_LENGTH * 2 - 1)
+    cl_ndia = [None] * (WINNING_LENGTH * 2 - 1)
 
-    :param x: Player move x
-    :param y: Player move y
-    :return: The best possible position in x and y coordinates
-    """
-    cl_row = [None] * WINNING_LENGTH
-    cl_col = [None] * WINNING_LENGTH
-    cl_pdia = [None] * WINNING_LENGTH
-    cl_ndia = [None] * WINNING_LENGTH
+    # Starting Positions for Extracting Positions
+    starting_x = x - (WINNING_LENGTH - 1)
+    starting_y = y + (WINNING_LENGTH - 1)
 
-    if turn_count == 1:
-        places = ((0, 2), (2, 2), (2, 0), (0, 0))
-        position = randint(0, 3)
-        while board[places[position][1]][places[position][0]]["text"] == "X":
-            position = randint(0, 3)
-        else:
-            return places[position]
+    # Negative Diagonal Starting Positions
+    n_start_x = x + (WINNING_LENGTH - 1)
+    n_start_y = y + (WINNING_LENGTH - 1)
 
-    for index, button in enumerate(board[y]):
-        cl_row[index] = board[y][index]["text"]
+    # Extracting Positions to the Check Lists
+    for change in range(WINNING_LENGTH * 2 - 1):
+        # Row
+        if on_board(starting_x + change, y):
+            cl_row[change] = board[y][starting_x + change]["text"]
+        # Column
+        if on_board(x, starting_y - change):
+            cl_col[change] = board[starting_y - change][x]["text"]
+        # Positive Diagonal
+        if on_board(starting_x + change, starting_y - change):
+            cl_pdia[change] = board[starting_y - change][starting_x + change]["text"]
+        # Negative Diagonal
+        if on_board(n_start_x - change, n_start_y - change):
+            cl_ndia[change] = board[n_start_y - change][n_start_x - change]["text"]
+
+    if cl_row.count("O") == WINNING_LENGTH - 1:
+        for this_x, col in enumerate(board[y]):
+            if col["text"] == " ":
+                return this_x, y
+
+    if cl_col.count("O") == WINNING_LENGTH - 1:
+        for this_y, row in enumerate(board):
+            if row[x]["text"] == " ":
+                return x, this_y
+
+    if cl_ndia.count("O") == WINNING_LENGTH - 1:
+        for index in range(BOARD_LENGTH):
+            if board[index][index]["text"] == " ":
+                return index, index
+
+    if cl_pdia.count("O") == WINNING_LENGTH - 1:
+        for index in range(BOARD_LENGTH):
+            if board[BOARD_LENGTH - 1 - index][index]["text"] == " ":
+                return index, BOARD_LENGTH - 1 - index
+
+
+# Artificial Defense
+def ai_defense(x: int, y: int) -> tuple[int, int] or None:
+    """Finds the move that prevents the player from winning"""
+    # Check Lists
+    cl_row = [None] * (WINNING_LENGTH * 2 - 1)
+    cl_col = [None] * (WINNING_LENGTH * 2 - 1)
+    cl_pdia = [None] * (WINNING_LENGTH * 2 - 1)
+    cl_ndia = [None] * (WINNING_LENGTH * 2 - 1)
+
+    # Starting Positions for Extracting Positions
+    starting_x = x - (WINNING_LENGTH - 1)
+    starting_y = y + (WINNING_LENGTH - 1)
+
+    # Negative Diagonal Starting Positions
+    n_start_x = x + (WINNING_LENGTH - 1)
+    n_start_y = y + (WINNING_LENGTH - 1)
+
+    # Extracting Positions to the Check Lists
+    for change in range(WINNING_LENGTH * 2 - 1):
+        # Row
+        if on_board(starting_x + change, y):
+            cl_row[change] = board[y][starting_x + change]["text"]
+        # Column
+        if on_board(x, starting_y - change):
+            cl_col[change] = board[starting_y - change][x]["text"]
+        # Positive Diagonal
+        if on_board(starting_x + change, starting_y - change):
+            cl_pdia[change] = board[starting_y - change][starting_x + change]["text"]
+        # Negative Diagonal
+        if on_board(n_start_x - change, n_start_y - change):
+            cl_ndia[change] = board[n_start_y - change][n_start_x - change]["text"]
 
     if cl_row.count("X") == WINNING_LENGTH - 1:
         for this_x, col in enumerate(board[y]):
             if col["text"] == " ":
                 return this_x, y
 
-    for this_y, row in enumerate(board):
-        cl_col[this_y] = row[x]["text"]
-
     if cl_col.count("X") == WINNING_LENGTH - 1:
         for this_y, row in enumerate(board):
             if row[x]["text"] == " ":
                 return x, this_y
-
-    for index in range(BOARD_LENGTH):
-        cl_ndia[index] = board[index][index]["text"]
-        cl_pdia[index] = board[BOARD_LENGTH - 1 - index][index]["text"]
 
     if cl_ndia.count("X") == WINNING_LENGTH - 1:
         for index in range(BOARD_LENGTH):
@@ -146,6 +199,34 @@ def ai(x: int, y: int) -> tuple[int, int]:
             if board[BOARD_LENGTH - 1 - index][index]["text"] == " ":
                 return index, BOARD_LENGTH - 1 - index
 
+
+# Artificial Intelligence
+def ai(x: int, y: int, pre_move: int) -> tuple[int, int]:
+    """
+    Finds the best possible position to play
+
+    :param x: Player move x
+    :param y: Player move y
+    :param pre_move: Previous AI move
+    :return: The best possible position in x and y coordinates
+    """
+
+    if turn_count == 1:
+        places = ((0, 2), (2, 2), (2, 0), (0, 0))
+        position = randint(0, 3)
+        while board[places[position][1]][places[position][0]]["text"] == "X":
+            position = randint(0, 3)
+        else:
+            return places[position]
+
+    move_offense = ai_offense(pre_move[0], pre_move[1])
+    if move_offense is not None:
+        return move_offense
+
+    move_defense = ai_defense(x, y)
+    if move_defense is not None:
+        return move_defense
+
     for this_y, row in enumerate(board):
         for this_x, col in enumerate(row):
             if col["text"] == " ":
@@ -155,11 +236,11 @@ def ai(x: int, y: int) -> tuple[int, int]:
 # Button Functionality
 def b_click(button: Button) -> None:
     """
-    Allows Tic Tac Toe button functionaly when it is pressed
+    Allows Tic Tac Toe button functionality when it is pressed
 
     :param button: The button pressed
     """
-    global turn_count
+    global turn_count, ai_previous
 
     coordinates = button.grid_info()
     x = int(coordinates["column"])
@@ -173,7 +254,8 @@ def b_click(button: Button) -> None:
             messagebox.showinfo("Tic Tac Toe", outcome)
             game_reset()
         else:
-            ai_coord = ai(x, y)
+            ai_coord = ai(x, y, ai_previous)
+            ai_previous = ai_coord
             turn_count += 1
             board[ai_coord[1]][ai_coord[0]]["text"] = "O"
             outcome = checking(ai_coord[0], ai_coord[1], "O")
@@ -181,8 +263,7 @@ def b_click(button: Button) -> None:
                 messagebox.showinfo("Tic Tac Toe", outcome)
                 game_reset()
     else:
-        messagebox.showerror("Tic Tac Toe", "Position Ouccupied by Player {}"
-                             .format(button["text"]))
+        messagebox.showerror("Tic Tac Toe", f"Position Occupied by Player {button['text']}")
 
 
 # Buttons
