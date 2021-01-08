@@ -1,6 +1,6 @@
 # Tic-Tac-Toe
 
-**Version 2.1**
+**Version 2.2**
 
 Tic Tac Toe written in python.
 
@@ -11,8 +11,8 @@ any version that is 1.5 and below is the place to go
 
 ## What's New
 
-1. Added a scuff ai to the game. All it can do now is try to prevent
-   me from winning. It wont try to win itself at the moment.
+1. Improved the scuffed ai, by adding offense to it. So it can finally win!
+2. Remade a bit of the code for the ai to match the `checking` function.
 
 ---
 
