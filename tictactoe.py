@@ -28,10 +28,14 @@ def on_board(x: int, y: int) -> bool:
 
 
 # Win or Loss?
-def checking(x: int, y: int, letter: str) -> str or None:
+def checking(x: int, y: int, letter: str, winning_length: int = WINNING_LENGTH, ai_check: bool = False) -> str or None:
     """
     Checks if the previous move was a win or a loss for player `X`
 
+    :param ai_check: Whether or not this function will be used
+        for the AI
+    :param winning_length: The `int` value representing how many
+        `letter` in a row it needs to win
     :param x: The `int` for position x
     :param y: The `int` for position y
     :param letter: The move played by
@@ -40,21 +44,21 @@ def checking(x: int, y: int, letter: str) -> str or None:
         Otherwise, nothing will be returned.
     """
     # Check Lists
-    cl_row = [None] * (WINNING_LENGTH * 2 - 1)
-    cl_col = [None] * (WINNING_LENGTH * 2 - 1)
-    cl_pdia = [None] * (WINNING_LENGTH * 2 - 1)
-    cl_ndia = [None] * (WINNING_LENGTH * 2 - 1)
+    cl_row = [None] * (winning_length * 2 - 1)
+    cl_col = [None] * (winning_length * 2 - 1)
+    cl_pdia = [None] * (winning_length * 2 - 1)
+    cl_ndia = [None] * (winning_length * 2 - 1)
 
     # Starting Positions for Extracting Positions
-    starting_x = x - (WINNING_LENGTH - 1)
-    starting_y = y + (WINNING_LENGTH - 1)
+    starting_x = x - (winning_length - 1)
+    starting_y = y + (winning_length - 1)
 
     # Negative Diagonal Starting Positions
-    n_start_x = x + (WINNING_LENGTH - 1)
-    n_start_y = y + (WINNING_LENGTH - 1)
+    n_start_x = x + (winning_length - 1)
+    n_start_y = y + (winning_length - 1)
 
     # Extracting Positions to the Check Lists
-    for change in range(WINNING_LENGTH * 2 - 1):
+    for change in range(winning_length * 2 - 1):
         # Row
         if on_board(starting_x + change, y):
             cl_row[change] = board[y][starting_x + change]["text"]
@@ -69,13 +73,21 @@ def checking(x: int, y: int, letter: str) -> str or None:
             cl_ndia[change] = board[n_start_y - change][n_start_x - change]["text"]
 
     # Checking If There was any Winning Statements in the Check Lists
-    if cl_row.count(letter) >= WINNING_LENGTH:
+    if cl_row.count(letter) >= winning_length:
+        if ai_check:
+            return "row"
         return f"{letter} Won!"
-    if cl_col.count(letter) >= WINNING_LENGTH:
+    if cl_col.count(letter) >= winning_length:
+        if ai_check:
+            return "col"
         return f"{letter} Won!"
-    if cl_pdia.count(letter) >= WINNING_LENGTH:
+    if cl_pdia.count(letter) >= winning_length:
+        if ai_check:
+            return "pdia"
         return f"{letter} Won!"
-    if cl_ndia.count(letter) >= WINNING_LENGTH:
+    if cl_ndia.count(letter) >= winning_length:
+        if ai_check:
+            return "ndia"
         return f"{letter} Won!"
     if turn_count == BOARD_LENGTH ** 2:
         return "Draw!"
@@ -98,106 +110,55 @@ def game_reset():
 # Artificial Offense
 def ai_offense(x: int, y: int) -> tuple[int, int] or None:
     """Finds the move that causes the ai to win"""
-    cl_row = [None] * (WINNING_LENGTH * 2 - 1)
-    cl_col = [None] * (WINNING_LENGTH * 2 - 1)
-    cl_pdia = [None] * (WINNING_LENGTH * 2 - 1)
-    cl_ndia = [None] * (WINNING_LENGTH * 2 - 1)
+    ai_outcome = checking(x, y, "O", winning_length=WINNING_LENGTH - 1, ai_check=True)
 
-    # Starting Positions for Extracting Positions
-    starting_x = x - (WINNING_LENGTH - 1)
-    starting_y = y + (WINNING_LENGTH - 1)
+    if ai_outcome is not None:
+        if ai_outcome == "row":
+            for this_x, col in enumerate(board[y]):
+                if col["text"] == " ":
+                    return this_x, y
 
-    # Negative Diagonal Starting Positions
-    n_start_x = x + (WINNING_LENGTH - 1)
-    n_start_y = y + (WINNING_LENGTH - 1)
+        if ai_outcome == "col":
+            for this_y, row in enumerate(board):
+                if row[x]["text"] == " ":
+                    return x, this_y
 
-    # Extracting Positions to the Check Lists
-    for change in range(WINNING_LENGTH * 2 - 1):
-        # Row
-        if on_board(starting_x + change, y):
-            cl_row[change] = board[y][starting_x + change]["text"]
-        # Column
-        if on_board(x, starting_y - change):
-            cl_col[change] = board[starting_y - change][x]["text"]
-        # Positive Diagonal
-        if on_board(starting_x + change, starting_y - change):
-            cl_pdia[change] = board[starting_y - change][starting_x + change]["text"]
-        # Negative Diagonal
-        if on_board(n_start_x - change, n_start_y - change):
-            cl_ndia[change] = board[n_start_y - change][n_start_x - change]["text"]
+        if ai_outcome == "ndia":
+            for index in range(BOARD_LENGTH):
+                if board[index][index]["text"] == " ":
+                    return index, index
 
-    if cl_row.count("O") == WINNING_LENGTH - 1:
-        for this_x, col in enumerate(board[y]):
-            if col["text"] == " ":
-                return this_x, y
-
-    if cl_col.count("O") == WINNING_LENGTH - 1:
-        for this_y, row in enumerate(board):
-            if row[x]["text"] == " ":
-                return x, this_y
-
-    if cl_ndia.count("O") == WINNING_LENGTH - 1:
-        for index in range(BOARD_LENGTH):
-            if board[index][index]["text"] == " ":
-                return index, index
-
-    if cl_pdia.count("O") == WINNING_LENGTH - 1:
-        for index in range(BOARD_LENGTH):
-            if board[BOARD_LENGTH - 1 - index][index]["text"] == " ":
-                return index, BOARD_LENGTH - 1 - index
+        if ai_outcome == "pdia":
+            for index in range(BOARD_LENGTH):
+                if board[BOARD_LENGTH - 1 - index][index]["text"] == " ":
+                    return index, BOARD_LENGTH - 1 - index
 
 
 # Artificial Defense
 def ai_defense(x: int, y: int) -> tuple[int, int] or None:
     """Finds the move that prevents the player from winning"""
-    # Check Lists
-    cl_row = [None] * (WINNING_LENGTH * 2 - 1)
-    cl_col = [None] * (WINNING_LENGTH * 2 - 1)
-    cl_pdia = [None] * (WINNING_LENGTH * 2 - 1)
-    cl_ndia = [None] * (WINNING_LENGTH * 2 - 1)
+    ai_outcome = checking(x, y, "X", winning_length=WINNING_LENGTH - 1, ai_check=True)
 
-    # Starting Positions for Extracting Positions
-    starting_x = x - (WINNING_LENGTH - 1)
-    starting_y = y + (WINNING_LENGTH - 1)
+    if ai_outcome is not None:
+        if ai_outcome == "row":
+            for this_x, col in enumerate(board[y]):
+                if col["text"] == " ":
+                    return this_x, y
 
-    # Negative Diagonal Starting Positions
-    n_start_x = x + (WINNING_LENGTH - 1)
-    n_start_y = y + (WINNING_LENGTH - 1)
+        if ai_outcome == "col":
+            for this_y, row in enumerate(board):
+                if row[x]["text"] == " ":
+                    return x, this_y
 
-    # Extracting Positions to the Check Lists
-    for change in range(WINNING_LENGTH * 2 - 1):
-        # Row
-        if on_board(starting_x + change, y):
-            cl_row[change] = board[y][starting_x + change]["text"]
-        # Column
-        if on_board(x, starting_y - change):
-            cl_col[change] = board[starting_y - change][x]["text"]
-        # Positive Diagonal
-        if on_board(starting_x + change, starting_y - change):
-            cl_pdia[change] = board[starting_y - change][starting_x + change]["text"]
-        # Negative Diagonal
-        if on_board(n_start_x - change, n_start_y - change):
-            cl_ndia[change] = board[n_start_y - change][n_start_x - change]["text"]
+        if ai_outcome == "ndia":
+            for index in range(BOARD_LENGTH):
+                if board[index][index]["text"] == " ":
+                    return index, index
 
-    if cl_row.count("X") == WINNING_LENGTH - 1:
-        for this_x, col in enumerate(board[y]):
-            if col["text"] == " ":
-                return this_x, y
-
-    if cl_col.count("X") == WINNING_LENGTH - 1:
-        for this_y, row in enumerate(board):
-            if row[x]["text"] == " ":
-                return x, this_y
-
-    if cl_ndia.count("X") == WINNING_LENGTH - 1:
-        for index in range(BOARD_LENGTH):
-            if board[index][index]["text"] == " ":
-                return index, index
-
-    if cl_pdia.count("X") == WINNING_LENGTH - 1:
-        for index in range(BOARD_LENGTH):
-            if board[BOARD_LENGTH - 1 - index][index]["text"] == " ":
-                return index, BOARD_LENGTH - 1 - index
+        if ai_outcome == "pdia":
+            for index in range(BOARD_LENGTH):
+                if board[BOARD_LENGTH - 1 - index][index]["text"] == " ":
+                    return index, BOARD_LENGTH - 1 - index
 
 
 # Artificial Intelligence
