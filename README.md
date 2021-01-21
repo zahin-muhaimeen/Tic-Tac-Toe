@@ -1,5 +1,3 @@
----
-
 # Tic-Tac-Toe
 
 **Version 2.3**
@@ -7,7 +5,13 @@
 Tic Tac Toe written in python.
 
 If you still want to use the command line version,
-any version that is 1.5 and below is the place to go
+any version that is 1.5 and below is the place to go.
+
+---
+
+## Requirements
+
+1. This project require the Tkinter module.
 
 ---
 
