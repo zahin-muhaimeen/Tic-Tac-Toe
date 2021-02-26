@@ -20,9 +20,3 @@ any version that is 1.5 and below is the place to go.
 1. Refactored and optimized the code for the `AI` function and its child ones
 
 ---
-
-## License & Copyright
-
-This project is unlicensed and open source
-
----
