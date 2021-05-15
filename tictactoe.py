@@ -228,25 +228,25 @@ def b_click(button: Button) -> None:
 
 
 # Buttons
-b1 = Button(root, text=" ", font=("Helvetica", 25), height=4, width=8, bg="SystemButtonFace",
+b1 = Button(root, text=" ", font=("Helvetica", 25), height=4, width=8, bg="#232731", fg="#ABB2BF",
             command=lambda: b_click(b1))
-b2 = Button(root, text=" ", font=("Helvetica", 25), height=4, width=8, bg="SystemButtonFace",
+b2 = Button(root, text=" ", font=("Helvetica", 25), height=4, width=8, bg="#232731", fg="#ABB2BF",
             command=lambda: b_click(b2))
-b3 = Button(root, text=" ", font=("Helvetica", 25), height=4, width=8, bg="SystemButtonFace",
+b3 = Button(root, text=" ", font=("Helvetica", 25), height=4, width=8, bg="#232731", fg="#ABB2BF",
             command=lambda: b_click(b3))
 
-b4 = Button(root, text=" ", font=("Helvetica", 25), height=4, width=8, bg="SystemButtonFace",
+b4 = Button(root, text=" ", font=("Helvetica", 25), height=4, width=8, bg="#232731", fg="#ABB2BF",
             command=lambda: b_click(b4))
-b5 = Button(root, text=" ", font=("Helvetica", 25), height=4, width=8, bg="SystemButtonFace",
+b5 = Button(root, text=" ", font=("Helvetica", 25), height=4, width=8, bg="#232731", fg="#ABB2BF",
             command=lambda: b_click(b5))
-b6 = Button(root, text=" ", font=("Helvetica", 25), height=4, width=8, bg="SystemButtonFace",
+b6 = Button(root, text=" ", font=("Helvetica", 25), height=4, width=8, bg="#232731", fg="#ABB2BF",
             command=lambda: b_click(b6))
 
-b7 = Button(root, text=" ", font=("Helvetica", 25), height=4, width=8, bg="SystemButtonFace",
-            command=lambda: b_click(b7))
-b8 = Button(root, text=" ", font=("Helvetica", 25), height=4, width=8, bg="SystemButtonFace",
+b7 = Button(root, text=" ", font=("Helvetica", 25), height=4, width=8, bg="#232731", fg="#ABB2BF",
+            command=lambda: b_click(b7))                                           
+b8 = Button(root, text=" ", font=("Helvetica", 25), height=4, width=8, bg="#232731", fg="#ABB2BF",
             command=lambda: b_click(b8))
-b9 = Button(root, text=" ", font=("Helvetica", 25), height=4, width=8, bg="SystemButtonFace",
+b9 = Button(root, text=" ", font=("Helvetica", 25), height=4, width=8, bg="#232731", fg="#ABB2BF",
             command=lambda: b_click(b9))
 
 # Board
