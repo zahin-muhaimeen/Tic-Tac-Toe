@@ -13,7 +13,7 @@ This is a fun project that I made to practice my coding skills in python, and al
 ** Fix or Add
 
 - FIXME Prioritize offense over defense
-When the 'AI' is given the choice between a win, or blocking a player's win, it choses to block.
+  When the 'AI' is given the choice between a win, or blocking a player's win, it choses to block.
 
 - TODO Add an option to choose between 'player vs computer' and 'player vs player'
 - TODO Add an option to choose between player 'X' and player 'Y'
