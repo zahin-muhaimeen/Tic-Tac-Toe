@@ -1,0 +1,19 @@
+#+TITLE: Tic Tac Toe
+#+AUTHOR: Zahin Muhaimeen
+
+Tic-Tac-Toe written as a graphical application in python.
+
+This is a fun project that I made to practice my coding skills in python, and also math logic.
+
+** Requirements
+
+- Python 3.8.4+ (Tested from version 3.8.4 - 3.9.5)
+- Tkinter (Python module)
+
+** Fix or Add
+
+*** FIXME Prioritize offense over defense
+When the 'AI' is given the choice between a win, or blocking a player's win, it choses to block.
+
+*** TODO Add an option to choose between 'player vs computer' and 'player vs player'
+*** TODO Add an option to choose between player 'X' and player 'Y'
